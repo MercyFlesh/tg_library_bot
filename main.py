@@ -205,19 +205,19 @@ def update_link(message):
     else:
         bot.send_message(message.chat.id, 'Incorrect format request')
 
-
 @bot.message_handler(content_types=['text'],
                     func=lambda message: message.chat.id in admin_id and
                     message.text.split(' ')[0] == 'update_topic')
 def update_topic(message):
-    res = re.match(rf'(update_topic\s{regex_link}\s{regex_topic})', message.text)
+    res = re.match(rf'(update_topic\s{regex_link}\s{regex_topic}\s{regex_topic})', message.text)
     if res is not None and res.group(0) == message.text:
-        result = re.findall(rf'update_topic\s({regex_link})\s({regex_topic})', message.text)
+        result = re.findall(rf'update_topic\s({regex_link})\s({regex_topic})\s({regex_topic})', message.text)
         post_link = result[0][0]
-        topic = result[0][1]
+        old_topic = result[0][1]
+        new_topic = result[0][2]
 
         with DBHelper() as db:
-            res = db.update_post_topic(post_link, topic)
+            res = db.update_post_topic(post_link, old_topic, new_topic)
         bot.send_message(message.chat.id, res)
     else:
         bot.send_message(message.chat.id, 'Incorrect format request')
@@ -240,13 +240,7 @@ def delete_link(message):
 #################
 
 def main():
-    while True:
-        try:
-            bot.polling(none_stop=True)
-        except Exception as ex:
-            print(ex)
-            time.sleep(1)
-
+    bot.infinity_polling(True)
 
 if __name__ == "__main__":
     main()
